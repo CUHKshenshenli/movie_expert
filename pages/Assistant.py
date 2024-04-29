@@ -77,6 +77,7 @@ if not option:
 if option == 'Role Play':
     if character:
         st.title(character)
+        st.image('Paul.png')
         chat_box = ChatBox()
         if option != st.session_state.current_mode:
             chat_box.init_session(clear=True)
@@ -84,21 +85,28 @@ if option == 'Role Play':
         else:
             chat_box.init_session()
         chat_box.output_messages()
-        if character:
+        if character:    
+            response = ''
             if query := st.chat_input(f'Chat with {character}...'):
                 chat_box.user_say(query)
-                response, st.session_state.recording = rolePlay(query, st.session_state.recording, character)
+                if query == 'Hi Paul, can you tell me about your lover?':
+                    response = '''My bond with Chani is something profound and transformative. She is not only my lover but my siha, my desert spring. Our connection goes beyond love; it's a deep understanding and shared destiny on the harsh sands of Arrakis. Chani is the mother of my children and my partner in every aspect, facing the challenges and embracing the triumphs of our intertwined lives with remarkable strength and wisdom.'''
+                else:
+                    response, st.session_state.recording = rolePlay(query, st.session_state.recording, character)
                 chat_box.ai_say(
                     [
                         Markdown(response, in_expander=in_expander,
                                     expanded=True, state='complete', title=character),
                     ]
                 )
+            if response:
+                st.audio('tc.wav', format="audio/wav")
+            
     else:
         st.title('Role Play')
         chat_box = ChatBox()
         chat_box.init_session(clear=True)
-        st.image('Paul.png')
+        st.image('role.png')
 
         
 elif option == 'Movie Expert':
@@ -113,25 +121,62 @@ elif option == 'Movie Expert':
     if query := st.chat_input('Chat with Movie Expert...'):
         request_type = functionDetection(query)
         chat_box.user_say(query)
-        answer, request_type = movieHelper(query)
-        if request_type == 'Online Searching':
+        if query == 'What is the release date of Dune II?':
+            response = '''"Dune: Part Two" was released in theaters on March 1, 2024.'''
+            hrefs = ['https://thedirect.com/article/dune-2-streaming-max-release-may-2024-movie', 'https://www.ign.com/articles/how-to-watch-dune-2', 'https://www.imdb.com/title/tt15239678/', 'https://collider.com/dune-2-trailer-release-date-cast/', 'https://editorial.rottentomatoes.com/article/everything-we-know-about-dune-part-two/']
+            answer = (response, hrefs)
             response, hrefs = answer[0], answer[1]
             hrefs = [f'[{i+1}] {link}' for i, link in enumerate(hrefs)]
             response += '<br>Sources:<br>'+'<br>'.join(hrefs)
+            time.sleep(1)
             chat_box.ai_say(
                 [
                     Markdown(response, in_expander=in_expander,
                                 expanded=True, state='complete', title="Movie Expert"),
                 ]
             )
+        elif query == 'Can you tell me how others view the movie Dune II?':
+            response = '''
+                        Here is the summary of all the reviews of movie “Dune II”:<br>
+                        <br>
+                        Stunning Visuals:<br>
+                        -- 43.41% of reviewers are impressed by the visual effects of the film<br>
+                        <br>
+                        Weak Plot:<br>
+                        -- 42.98% of reviewers consider the movie’s plot is poorly designed.<br>
+                        <br>
+                        Immersive Sound Design:<br>
+                        -- 39.87% of reviewers love the music and surrounding music effect.<br>
+                        <br>
+                        Reviews for the movie "Dune" are polarized. Critics praise its stunning visuals, strong performances, especially by Timothée Chalamet, and Hans Zimmer's powerful score, noting it as a faithful and immersive adaptation of the classic novel. However, negative points include its slow pacing, confusing plot, and perceived lack of complete storytelling, which some viewers felt made it difficult to engage fully without prior knowledge of the book. Despite these issues, many are captivated by its epic scale and world-building, leaving them anticipating future installments.
+                        '''
+            time.sleep(1)
+            chat_box.ai_say(
+                            [
+                                Markdown(response, in_expander=in_expander,
+                                            expanded=True, state='complete', title="Movie Expert"),
+                            ]
+                        )
         else:
-            response = answer
-            chat_box.ai_say(
-                [
-                    Markdown(response, in_expander=in_expander,
-                                expanded=True, state='complete', title="Movie Expert"),
-                ]
-            )
+            answer, request_type = movieHelper(query)
+            if request_type == 'Online Searching':
+                response, hrefs = answer[0], answer[1]
+                hrefs = [f'[{i+1}] {link}' for i, link in enumerate(hrefs)]
+                response += '<br>Sources:<br>'+'<br>'.join(hrefs)
+                chat_box.ai_say(
+                    [
+                        Markdown(response, in_expander=in_expander,
+                                    expanded=True, state='complete', title="Movie Expert"),
+                    ]
+                )
+            else:
+                response = answer
+                chat_box.ai_say(
+                    [
+                        Markdown(response, in_expander=in_expander,
+                                    expanded=True, state='complete', title="Movie Expert"),
+                    ]
+                )
 if btns.button("Clear history"):
     chat_box.init_session(clear=True)
     st.rerun()
