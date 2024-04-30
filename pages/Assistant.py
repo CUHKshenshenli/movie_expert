@@ -93,6 +93,7 @@ if option == 'Role Play':
                     response = '''My bond with Chani is something profound and transformative. She is not only my lover but my siha, my desert spring. Our connection goes beyond love; it's a deep understanding and shared destiny on the harsh sands of Arrakis. Chani is the mother of my children and my partner in every aspect, facing the challenges and embracing the triumphs of our intertwined lives with remarkable strength and wisdom.'''
                 else:
                     response, st.session_state.recording = rolePlay(query, st.session_state.recording, character)
+                time.sleep(1)
                 chat_box.ai_say(
                     [
                         Markdown(response, in_expander=in_expander,
